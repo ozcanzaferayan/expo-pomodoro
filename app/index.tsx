@@ -31,27 +31,30 @@ export default function PomodoroScreen() {
 
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const player = useAudioPlayer(track.audio);
+  const player = useAudioPlayer(null, { updateInterval: 500 });
 
   // loop ayarını bir kere yap
   useEffect(() => {
     player.loop = true;
   }, [player]);
 
-  // track değişince ve hala playing ise -> yeni şarkıyı baştan çal
+  // 🎵 Parça değişince / play-pause değişince kaynağı güncelle
   useEffect(() => {
-    if (isPlaying) {
-      player.seekTo(0);
-      player.play();
-    }
-  }, [currentTrackIndex, isPlaying, player]);
+    // yeni kaynağı yükle
+    player.replace(track.audio);
 
-  const handlePlayPause = () => {
-    if (!isPlaying) {
+    // başa sar
+    player.seekTo(0);
+
+    // state'e göre play/pause
+    if (isPlaying) {
       player.play();
     } else {
       player.pause();
     }
+  }, [track.audio, isPlaying, player]);
+
+  const handlePlayPause = () => {
     setIsPlaying((p) => !p);
   };
 
@@ -66,6 +69,7 @@ export default function PomodoroScreen() {
   const handleReset = () => {
     setIsPlaying(false);
     player.pause();
+    player.seekTo(0);
   };
 
   return (
